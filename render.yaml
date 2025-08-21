@@ -1,0 +1,62 @@
+services:
+  - type: web
+    name: my-reset-web
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:web_app -b 0.0.0.0:$PORT
+    autoDeploy: true
+    envVars:
+      - key: FRONTEND_BASE
+        value: "https://<your-web-service>.onrender.com"
+      - key: RESET_PATH
+        value: "/reset"
+      - key: RESET_EXPIRY_MINUTES
+        value: "60"
+      - key: SMTP_HOST
+        value: ""
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        value: ""
+      - key: SMTP_PASS
+        value: ""
+      - key: FROM_EMAIL
+        value: ""
+      - key: DATABASE_URL
+        value: ""  # leave empty to use Render Postgres; set via dashboard after provisioning
+
+  - type: worker
+    name: my-telegram-bot
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py bot
+    autoDeploy: true
+    envVars:
+      - key: BOT_TOKEN
+        value: ""
+      - key: FRONTEND_BASE
+        value: "https://<your-web-service>.onrender.com"
+      - key: SMTP_HOST
+        value: ""
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        value: ""
+      - key: SMTP_PASS
+        value: ""
+      - key: FROM_EMAIL
+        value: ""
+      - key: RESET_EXPIRY_MINUTES
+        value: "60"
+      - key: DATABASE_URL
+        value: ""  # optional
+
+# Notes:
+# - Replace <your-web-service> with the actual Render service name once created (or set FRONTEND_BASE after deploy).
+# - Provision Render Postgres from the dashboard (free Hobby) and paste the DATABASE_URL into the web and worker env vars.
+# - On the Worker service set "Scale" to 1 so only one polling instance runs.
+# - Do NOT put sensitive secrets in this file for public repos; set them in Render's dashboard (or use encrypted secrets).
