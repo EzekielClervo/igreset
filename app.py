@@ -154,6 +154,19 @@ This link expires in {RESET_EXPIRY_MINUTES} minutes.
             server.login(SMTP_USER, SMTP_PASS)
         server.send_message(msg)
 
+# add to app.py (near the Flask routes)
+@web_app.route("/", methods=["GET"])
+def index():
+    return (
+        "<h3>Reset service running</h3>"
+        "<p>Use <a href=\"/reset\">/reset</a> (provide ?token=...) or POST the form.</p>"
+    ), 200
+
+@web_app.route("/health", methods=["GET"])
+def health():
+    # simple health endpoint Render (or you) can probe
+    return "ok", 200
+    
 # -----------------------------
 # Flask web part (reset page)
 # -----------------------------
